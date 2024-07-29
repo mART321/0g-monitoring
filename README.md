@@ -5,7 +5,7 @@
 Navigate to your home directory and download the monitoring script:
 ```bash
 cd $HOME
-wget -O 0g-monitoring.sh https://raw.githubusercontent.com/mART321/0g-monitoring/main/0g-monitoring.sh?token=GHSAT0AAAAAACR2AZUW7S53QZLQROSKYBAEZVIA4GA
+wget -O 0g-monitoring.sh https://raw.githubusercontent.com/mART321/0g-monitoring/main/0g-monitoring.sh
 ```
 
 #### Step 2: Make the Script Executable
