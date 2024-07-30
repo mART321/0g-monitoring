@@ -1,19 +1,20 @@
 #!/bin/bash
 
-is_number() {
-    [[ $1 =~ ^[0-9]+$ ]]
-}
+if ! command -v jq &> /dev/null || ! command -v curl &> /dev/null
+then
+    echo "jq and curl are required but not installed. Please install them and try again."
+    exit 1
+fi
 
-TELEGRAM_BOT_TOKEN="___"
-TELEGRAM_CHAT_ID="____"
+TELEGRAM_BOT_TOKEN=""
+TELEGRAM_CHAT_ID=""
 
-
-STORAGE_NODE_PORT="___"
+STORAGE_RPC=""
 #if you do not have a validator node, then leave the field empty; 
-#                    |
-#                    |    
-#                    V there ;)
-VALIDATOR_NODE_PORT=""
+#              |
+#              |    
+#              V there ;)
+VALIDATOR_RPC=""
 NODE_NAME="0G_NODE"
 PARENT_RPC="https://og-testnet-rpc.itrocket.net"
 SLEEP_INTERVAL=15 
@@ -58,8 +59,8 @@ check_block_height_and_peers() {
     done
 
     if [[ $ATTEMPTS -eq $MAX_ATTEMPTS ]]; then
-        send_telegram "0G_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT АН INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
-        echo "ERROR: 0G_NODE PARENT RPC $PARENT_RPC IS DOWN OR SENT АН INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
+        send_telegram "0G_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
+        echo "ERROR: 0G_NODE PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
         return 1
     fi
 
@@ -94,13 +95,13 @@ check_block_height() {
             break
         fi
         ATTEMPTS=$((ATTEMPTS + 1))
-        echo "ATTEMPT $ATTEMPTS/$MAX_ATTEMPTS: PARENT RPC $PARENT_RPC IS DOWN OR SENT АН INVALID RESPONSE. RETRYING IN 5 SECONDS..."
+        echo "ATTEMPT $ATTEMPTS/$MAX_ATTEMPTS: PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE. RETRYING IN 5 SECONDS..."
         sleep 5
     done
 
     if [[ $ATTEMPTS -eq $MAX_ATTEMPTS ]]; then
-        send_telegram "0G_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT АН INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
-        echo "ERROR: 0G_NODE PARENT RPC $PARENT_RPC IS DOWN OR SENT АН INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
+        send_telegram "0G_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
+        echo "ERROR: 0G_NODE PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
         return 1
     fi
 
@@ -110,23 +111,4 @@ check_block_height() {
         DIFF=$((PARENT_HEIGHT - HEIGHT))
         if [[ $DIFF -gt 25 ]]; then
             send_telegram "0G_NODE: RPC BLOCK HEIGHT DIFFERENCE $DIFF. RPC: $HEIGHT, PARENT RPC: $PARENT_HEIGHT."
-            echo "ALERT: BLOCK HEIGHT DIFFERENCE IS $DIFF. RPC: $HEIGHT, PARENT RPC: $PARENT_HEIGHT."
-        else
-            echo "BLOCK HEIGHT WITHIN ACCEPTABLE RANGE."
-        fi
-    fi
-
-    return 0
-}
-
-while true; do
-    check_block_height_and_peers "$STORAGE_RPC"
-
-    if [[ -n "$VALIDATOR_RPC" ]]; then
-        check_block_height "$VALIDATOR_RPC"
-    fi
-
-    SLEEP_TIME=$(time_to_next_interval)
-    echo "0G_NODE: WAITING $SLEEP_TIME SECONDS BEFORE NEXT CHECK..."
-    sleep $SLEEP_TIME
-done
+            echo "ALERT: BLOCK HEIGHT DIFFERENCE IS $DIFF. RPC: $HEIGHT, PARENT RPC: $PARENT_HEI
