@@ -20,6 +20,7 @@ nano 0g-monitoring.sh
 TELEGRAM_BOT_TOKEN=""
 TELEGRAM_CHAT_ID=""
 STORAGE_RPC_PORT=""
+VALIDATOR_RPC_PORT=""
 ```
 #### if you do not have a validator note, then you can leave this field empty (you do not need to erase it)
 ```bash
