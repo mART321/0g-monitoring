@@ -19,11 +19,11 @@ nano 0g-monitoring.sh
 ```bash
 TELEGRAM_BOT_TOKEN=""
 TELEGRAM_CHAT_ID=""
-STORAGE_NODE_PORT(STORAGE_RPC)=""
+STORAGE_RPC_PORT=""
 ```
 #### if you do not have a validator note, then you can leave this field empty (you do not need to erase it)
 ```bash
-VALIDATOR_NODE_PORT(VALIDATOR_RPC)=""
+VALIDATOR_RPC_PORT=""
 ```
 
 #### Step 4: Make the Script Executable
