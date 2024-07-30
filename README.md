@@ -7,20 +7,33 @@ Navigate to your home directory and download the monitoring script:
 cd $HOME
 wget -O 0g-monitoring.sh https://raw.githubusercontent.com/mART321/0g-monitoring/main/0g-monitoring.sh
 ```
+#### Step 2: Configure Telegram Alerts
 
-#### Step 2: Make the Script Executable
+1. Open Telegram and find @BotFather to create a new bot.
+2. Follow the instructions from @BotFather to obtain your `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`.
+
+#### Step 3: Edit Script
+```bash
+nano 0g-monitoring.sh
+```
+```bash
+TELEGRAM_BOT_TOKEN=""
+TELEGRAM_CHAT_ID=""
+STORAGE_NODE_PORT=""
+```
+#### if you do not have a validator note, then you can leave this field empty (you do not need to erase it)
+```bash
+VALIDATOR_NODE_PORT=""
+```
+
+#### Step 4: Make the Script Executable
 
 Make the downloaded script executable:
 ```bash
 chmod +x 0g-monitoring.sh
 ```
 
-#### Step 3: Configure Telegram Alerts
-
-1. Open Telegram and find @BotFather to create a new bot.
-2. Follow the instructions from @BotFather to obtain your `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`.
-
-#### Step 4: Set Up the Systemd Service
+#### Step 5: Set Up the Systemd Service
 
 Create and edit the service file:
 ```bash
@@ -41,13 +54,13 @@ WantedBy=multi-user.target
 EOF
 ```
 
-#### Step 5: Start the Service
+#### Step 6: Start the Service
 
 Reload the systemd daemon and enable the service to start on boot:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable monitoring-0g
-sudo systemctl start monitoring-0g
+sudo systemctl restart monitoring-0g && sudo journalctl -u monitoring-0g -f
 ```
 
 #### Removing the Service and Script (if needed)
