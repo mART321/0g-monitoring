@@ -8,7 +8,6 @@ fi
 
 TELEGRAM_BOT_TOKEN=""
 TELEGRAM_CHAT_ID=""
-
 STORAGE_RPC=""
 #if you do not have a validator node, then leave the field empty; 
 #              |
@@ -60,7 +59,7 @@ check_block_height_and_peers() {
 
     if [[ $ATTEMPTS -eq $MAX_ATTEMPTS ]]; then
         send_telegram "0G_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
-        echo "ERROR: 0G_NODE PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
+        echo "ERROR: 0G_NODE PARENT RPC $PARENT_RPC IS DOWN OR SENT АН INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
         return 1
     fi
 
@@ -95,13 +94,13 @@ check_block_height() {
             break
         fi
         ATTEMPTS=$((ATTEMPTS + 1))
-        echo "ATTEMPT $ATTEMPTS/$MAX_ATTEMPTS: PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE. RETRYING IN 5 SECONDS..."
+        echo "ATTEMPT $ATTEMPTS/$MAX_ATTEMPTS: PARENT RPC $PARENT_RPC IS DOWN OR SENT АН INVALID RESPONSE. RETRYING IN 5 SECONDS..."
         sleep 5
     done
 
     if [[ $ATTEMPTS -eq $MAX_ATTEMPTS ]]; then
-        send_telegram "0G_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
-        echo "ERROR: 0G_NODE PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
+        send_telegram "0G_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT АН INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
+        echo "ERROR: 0G_NODE PARENT RPC $PARENT_RPC IS DOWN OR SENT АН INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
         return 1
     fi
 
@@ -111,4 +110,23 @@ check_block_height() {
         DIFF=$((PARENT_HEIGHT - HEIGHT))
         if [[ $DIFF -gt 25 ]]; then
             send_telegram "0G_NODE: RPC BLOCK HEIGHT DIFFERENCE $DIFF. RPC: $HEIGHT, PARENT RPC: $PARENT_HEIGHT."
-            echo "ALERT: BLOCK HEIGHT DIFFERENCE IS $DIFF. RPC: $HEIGHT, PARENT RPC: $PARENT_HEI
+            echo "ALERT: BLOCK HEIGHT DIFFERENCE IS $DIFF. RPC: $HEIGHT, PARENT RPC: $PARENT_HEIGHT."
+        else
+            echo "BLOCK HEIGHT WITHIN ACCEPTABLE RANGE."
+        fi
+    fi
+
+    return 0
+}
+
+while true; do
+    check_block_height_and_peers "$STORAGE_RPC"
+
+    if [[ -n "$VALIDATOR_RPC" ]]; then
+        check_block_height "$VALIDATOR_RPC"
+    fi
+
+    SLEEP_TIME=$(time_to_next_interval)
+    echo "0G_NODE: WAITING $SLEEP_TIME SECONDS BEFORE NEXT CHECK..."
+    sleep $SLEEP_TIME
+done
