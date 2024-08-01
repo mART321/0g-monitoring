@@ -22,7 +22,7 @@ TELEGRAM_CHAT_ID=""
 VALIDATOR_RPC_PORT=""
 STORAGE_RPC_PORT=""
 ```
-#### If you have only a validator node or only a storage node, simply enter the node's port in the specified place and leave the second one empty; you don't need to delete it)
+#### If you have only a validator node or only a storage node, simply enter the node's port in the specified place and leave the second one empty; you don't need to delete it:
 ```bash
 VALIDATOR_RPC_PORT=""
 STORAGE_RPC_PORT=""
