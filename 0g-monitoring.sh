@@ -151,20 +151,18 @@ check_block_height() {
 }
 
 while true; do
-    echo "0G_STORAGE_NODE: Storage RPC: $STORAGE_RPC"
-    check_block_height_and_peers "$STORAGE_RPC"
+    if [[ -n "$STORAGE_RPC_PORT" ]]; then
+        echo "0G_STORAGE_NODE: Storage RPC: $STORAGE_RPC"
+        check_block_height_and_peers "$STORAGE_RPC"
+    fi
 
     if [[ -n "$VALIDATOR_RPC_PORT" ]]; then
         echo "0G_VALIDATOR_NODE: Validator RPC: $VALIDATOR_RPC"
         check_block_height "$VALIDATOR_RPC"
     fi
 
-    if [[ -n "$STORAGE_RPC_PORT" ]]; then
-        echo "0G_STORAGE_NODE: Storage RPC: $STORAGE_RPC"
-        check_block_height_and_peers "$STORAGE_RPC"
-    fi
-
     SLEEP_TIME=$(time_to_next_interval)
     echo "0G_NODE: Waiting $SLEEP_TIME seconds before next check..."
     sleep $SLEEP_TIME
 done
+
