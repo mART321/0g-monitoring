@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Check if jq and curl are installed
 if ! command -v jq &> /dev/null || ! command -v curl &> /dev/null
 then
     echo "jq and curl are required but not installed. Please install them and try again."
@@ -11,10 +10,13 @@ fi
 TELEGRAM_BOT_TOKEN=""
 TELEGRAM_CHAT_ID=""
 STORAGE_RPC_PORT=""
-#if you do not have a validator node, then leave the field empty; 
+#                 Λ  there :)
+#                 |
+#                 |
+#If you have only a validator node or only a storage node, simply enter the node's port in the specified place and leave the second one empty; you don't need to delete it; 
 #                  |
 #                  |    
-#                  V there ;)
+#                  V or there ;)
 VALIDATOR_RPC_PORT=""
 STORAGE_RPC="http://localhost:$STORAGE_RPC_PORT"
 VALIDATOR_RPC="http://localhost:$VALIDATOR_RPC_PORT"
@@ -23,14 +25,11 @@ PARENT_RPC="https://og-testnet-rpc.itrocket.net"
 SLEEP_INTERVAL=15 
 MAX_ATTEMPTS=10   
 
-# Function to send messages to Telegram
 send_telegram() {
     local message="$1"
     echo "Sending telegram message: $message"
     curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" -d chat_id=$TELEGRAM_CHAT_ID -d text="$message"
 }
-
-# Function to calculate the time until the next interval
 time_to_next_interval() {
     local current_minute=$(date +%M)
     local next_interval=$(( (current_minute / SLEEP_INTERVAL + 1) * SLEEP_INTERVAL ))
@@ -38,15 +37,14 @@ time_to_next_interval() {
     echo $sleep_time
 }
 
-# Function to check block height and peers
 check_block_height_and_peers() {
     local RPC=$1
-    echo "$(date) - 0G_NODE: CHECKING RPC BLOCK HEIGHT AND CONNECTED PEERS FOR $RPC..."
+    echo "$(date) - 0G_STORAGE_NODE: CHECKING RPC BLOCK HEIGHT AND CONNECTED PEERS FOR $RPC..."
 
     RESPONSE=$(curl -s -X POST $RPC -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"zgs_getStatus","params":[],"id":1}')
     if [[ $? -ne 0 ]]; then
         echo "$(date) - ERROR: Failed to get response from $RPC"
-        send_telegram "0G_NODE: Failed to get response from $RPC"
+        send_telegram "0G_STORAGE_NODE: Failed to get response from $RPC"
         return 1
     fi
 
@@ -58,12 +56,12 @@ check_block_height_and_peers() {
 
     if [[ -z $HEIGHT || -z $PEERS ]]; then
         echo "$(date) - ERROR: Invalid response from RPC $RPC"
-        send_telegram "0G_NODE: Invalid response from RPC $RPC"
+        send_telegram "0G_STORAGE_NODE: Invalid response from RPC $RPC"
         return 1
     fi
 
     if [[ $PEERS -eq 0 ]]; then
-        send_telegram "0G_NODE: RPC $RPC HAS 0 CONNECTED PEERS."
+        send_telegram "0G_STORAGE_NODE: RPC $RPC HAS 0 CONNECTED PEERS."
         echo "$(date) - ALERT: RPC $RPC HAS 0 CONNECTED PEERS."
     fi
 
@@ -79,7 +77,7 @@ check_block_height_and_peers() {
     done
 
     if [[ $ATTEMPTS -eq $MAX_ATTEMPTS ]]; then
-        send_telegram "0G_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
+        send_telegram "0G_STORAGE_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
         echo "$(date) - ERROR: 0G_NODE PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
         return 1
     fi
@@ -89,8 +87,8 @@ check_block_height_and_peers() {
     if [[ $HEIGHT -ne 0 ]] && [[ $PARENT_HEIGHT -ne 0 ]]; then
         DIFF=$((PARENT_HEIGHT - HEIGHT))
         if [[ $DIFF -gt 25 ]]; then
-            send_telegram "0G_NODE: RPC BLOCK HEIGHT DIFFERENCE $DIFF. RPC: $HEIGHT, PARENT RPC: $PARENT_HEIGHT."
-            echo "$(date) - ALERT: BLOCK HEIGHT DIFFERENCE IS $DIFF. RPC: $HEIGHT, PARENT RPC: $PARENT_HEIGHT."
+            send_telegram "0G_STORAGE_NODE: RPC BLOCK HEIGHT DIFFERENCE $DIFF. RPC: $HEIGHT, PARENT RPC: $PARENT_HEIGHT."
+            echo "$(date) - 0G_STORAGE_NODE: BLOCK HEIGHT DIFFERENCE IS $DIFF. RPC: $HEIGHT, PARENT RPC: $PARENT_HEIGHT."
         else
             echo "$(date) - BLOCK HEIGHT WITHIN ACCEPTABLE RANGE."
         fi
@@ -99,15 +97,14 @@ check_block_height_and_peers() {
     return 0
 }
 
-# Function to check block height
 check_block_height() {
     local RPC=$1
-    echo "$(date) - 0G_NODE: CHECKING RPC BLOCK HEIGHT FOR $RPC..."
+    echo "$(date) - 0G_VALIDATOR_NODE: CHECKING RPC BLOCK HEIGHT FOR $RPC..."
 
     RESPONSE=$(curl -s --max-time 3 "$RPC/block")
     if [[ $? -ne 0 ]]; then
         echo "$(date) - ERROR: Failed to get response from $RPC"
-        send_telegram "0G_NODE: Failed to get response from $RPC"
+        send_telegram "0G_VALIDATOR_NODE: Failed to get response from $RPC"
         return 1
     fi
 
@@ -117,7 +114,7 @@ check_block_height() {
 
     if [[ -z $HEIGHT ]]; then
         echo "$(date) - ERROR: Invalid response from RPC $RPC"
-        send_telegram "0G_NODE: Invalid response from RPC $RPC"
+        send_telegram "0G_VALIDATOR_NODE: Invalid response from RPC $RPC"
         return 1
     fi
 
@@ -133,7 +130,7 @@ check_block_height() {
     done
 
     if [[ $ATTEMPTS -eq $MAX_ATTEMPTS ]]; then
-        send_telegram "0G_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
+        send_telegram "0G_VALIDATOR_NODE: PARENT RPC $PARENT_RPC IS DOWN OR SENT AN INVALID RESPONSE AFTER $MAX_ATTEMPTS ATTEMPTS."
         echo "$(date) - ERROR: 0G_NODE PARENT RPC $PARENT_RPC IS DOWN OR SENT АН INVALID RESPONSE AFTER $MAX ATTEMPTS ATTEMPTS."
         return 1
     fi
@@ -153,14 +150,18 @@ check_block_height() {
     return 0
 }
 
-# Main loop for checking
 while true; do
-    echo "$(date) - STORAGE_RPC: $STORAGE_RPC"  # Logging URL for checking
+    echo "$(date) - STORAGE_RPC: $STORAGE_RPC"
     check_block_height_and_peers "$STORAGE_RPC"
 
     if [[ -n "$VALIDATOR_RPC_PORT" ]]; then
-        echo "$(date) - VALIDATOR_RPC: $VALIDATOR_RPC"  # Logging URL for checking
+        echo "$(date) - VALIDATOR_RPC: $VALIDATOR_RPC"
         check_block_height "$VALIDATOR_RPC"
+    fi
+
+    if [[ -n "$STORAGE_RPC_PORT" ]]; then
+        echo "$(date) - STORAGE_RPC: $STORAGE_RPC"
+        check_block_height_and_peers "$STORAGE_RPC"
     fi
 
     SLEEP_TIME=$(time_to_next_interval)
