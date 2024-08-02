@@ -6,36 +6,25 @@ Navigate to your home directory and download the monitoring script:
 ```bash
 cd $HOME
 wget -O 0g-monitoring.sh https://raw.githubusercontent.com/mART321/0g-monitoring/main/0g-monitoring.sh
+chmod +x 0g-monitoring.sh
 ```
 #### Step 2: Configure Telegram Alerts
+Open Telegram and find `@BotFather`
+- Here are the [instructions](https://sematext.com/docs/integration/alerts-telegram-integration/)
+- How to get [chat id](https://stackoverflow.com/questions/32423837/telegram-bot-how-to-get-a-group-chat-id)
 
-1. Open Telegram and find @BotFather to create a new bot.
-2. Follow the instructions from @BotFather to obtain your `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`.
-
-#### Step 3: Edit Script
+#### Step 3: Edit script
 ```bash
 nano 0g-monitoring.sh
 ```
 ```bash
 TELEGRAM_BOT_TOKEN=""
 TELEGRAM_CHAT_ID=""
-VALIDATOR_RPC_PORT=""
-STORAGE_RPC_PORT=""
-```
-#### If you have only a validator node or only a storage node, simply enter the node's port in the specified place and leave the second one empty; you don't need to delete it:
-```bash
-VALIDATOR_RPC_PORT=""
-STORAGE_RPC_PORT=""
+STORAGE_RPC_PORT="" # Default port 5678. If you don`t want to monitor storage node, leave the field empty
+VALIDATOR_RPC_PORT="" # Default port 26657. If you don`t want to monitor validator node, leave the field empty
 ```
 
-#### Step 4: Make the Script Executable
-
-Make the downloaded script executable:
-```bash
-chmod +x 0g-monitoring.sh
-```
-
-#### Step 5: Set Up the Systemd Service
+#### Step 4: Set Up the Systemd Service
 
 Create and edit the service file:
 ```bash
@@ -56,7 +45,7 @@ WantedBy=multi-user.target
 EOF
 ```
 
-#### Step 6: Start the Service
+#### Step 5: Start the Service
 
 Reload the systemd daemon and enable the service to start on boot:
 ```bash
