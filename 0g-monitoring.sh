@@ -9,20 +9,15 @@ fi
 TELEGRAM_BOT_TOKEN=""
 TELEGRAM_CHAT_ID=""
 STORAGE_RPC_PORT=""
-#                 Λ  there :)
-#                 |
-#                 |
-#If you have only a validator node or only a storage node, simply enter the node's port in the specified place and leave the second one empty; you don't need to delete it; 
-#                  |
-#                  |    
-#                  V or there ;)
-VALIDATOR_RPC_PORT=""
-STORAGE_RPC="http://localhost:$STORAGE_RPC_PORT"
-VALIDATOR_RPC="http://localhost:$VALIDATOR_RPC_PORT"
+VALIDATOR_RPC_PORT="" 
 NODE_NAME="0G_NODE"
 PARENT_RPC="https://og-testnet-rpc.itrocket.net"
-SLEEP_INTERVAL=15 
-MAX_ATTEMPTS=10   
+SLEEP_INTERVAL=15 # Skript check interval 
+MAX_ATTEMPTS=10   # Number of checks
+
+#Do note modify 
+STORAGE_RPC="http://localhost:$STORAGE_RPC_PORT"
+VALIDATOR_RPC="http://localhost:$VALIDATOR_RPC_PORT"
 
 send_telegram() {
     local message="$1"
